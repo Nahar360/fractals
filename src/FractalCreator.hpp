@@ -2,11 +2,9 @@
 #define FRACTALCREATOR_HPP
 
 #include "Bitmap.hpp"
-#include "Mandelbrot.hpp"
 #include "Zoom.hpp"
 #include "ZoomList.hpp"
 
-#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -29,13 +27,13 @@ namespace Fractals
 
 	public:
 		FractalCreator(int width, int height);
-		virtual ~FractalCreator();
+		virtual ~FractalCreator() = default;
 
 		void calculateIterations();
 		void calculateTotalIterations();
 		void drawFractal();
 		void addZoom(const Zoom& zoom);
-		void writeBitmap(std::string filename);
+		void writeBitmap(const std::string& filename);
 
 		void run();
 	};

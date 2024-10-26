@@ -20,7 +20,7 @@ namespace Fractals
 		virtual ~Bitmap() = default;
 
 		void setPixel(int x, int y, uint8_t red, uint8_t green, uint8_t blue);
-		bool write(std::string filename);
+		bool write(const std::string& filename);
 	};
 }
 

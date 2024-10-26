@@ -1,6 +1,13 @@
 #include "FractalCreator.hpp"
 
-Fractals::FractalCreator::FractalCreator(int width, int height) :
+#include "Mandelbrot.hpp"
+
+#include <filesystem>
+#include <iostream>
+
+using namespace Fractals;
+
+FractalCreator::FractalCreator(int width, int height) :
 	m_width(width),
 	m_height(height),
 	m_histogram(new int[Mandelbrot::MAX_ITERATIONS]),
@@ -25,55 +32,57 @@ Fractals::FractalCreator::FractalCreator(int width, int height) :
 	addZoom(Zoom(width / 2, height / 2, 4.0 / width));
 }
 
-Fractals::FractalCreator::~FractalCreator()
-{
-}
-
-void Fractals::FractalCreator::calculateIterations()
+void FractalCreator::calculateIterations()
 {
 	for (int y = 0; y < m_height; y++)
 	{
 		for (int x = 0; x < m_width; x++)
 		{
-			std::pair<double, double> coords = m_zoomList.doZoom(x, y);
+			// get the coordinates after zooming
+			const std::pair<double, double> coords = m_zoomList.doZoom(x, y);
+			// get the number of iterations for the given coordinates
+			const int iterations = Mandelbrot::getIterations(coords.first, coords.second);
 
-			int iterations = Mandelbrot::getIterations(coords.first, coords.second);
+			// if the number of iterations is not the maximum number of iterations, increment the histogram
 			if (iterations != Mandelbrot::MAX_ITERATIONS)
 			{
 				m_histogram[iterations]++;
 			}
 
+			// store the number of iterations for the given coordinates
 			m_fractal[y * m_width + x] = iterations;
 		}
 	}
 }
 
-void Fractals::FractalCreator::calculateTotalIterations()
+void FractalCreator::calculateTotalIterations()
 {
+	// calculate the total number of iterations
 	for (int i = 0; i < Mandelbrot::MAX_ITERATIONS; i++)
 	{
 		m_total += m_histogram[i];
 	}
 }
 
-void Fractals::FractalCreator::drawFractal()
+void FractalCreator::drawFractal()
 {
 	for (int y = 0; y < m_height; y++)
 	{
 		for (int x = 0; x < m_width; x++)
 		{
-			uint8_t red = 0;
+			// default colour
+			const uint8_t red = 100;
 			uint8_t green = 0;
-			uint8_t blue = 0;
+			const uint8_t blue = 200;
 
-			int iterations = m_fractal[y * m_width + x];
+			const int iterations = m_fractal[y * m_width + x];
 			if (iterations != Mandelbrot::MAX_ITERATIONS)
 			{
+				// colouring the fractal
 				double hue = 0.0;
-
 				for (int i = 0; i <= iterations; i++)
 				{
-					hue += ((double)m_histogram[i]) / m_total;
+					hue += (static_cast<double>(m_histogram[i]) / m_total);
 				}
 
 				green = hue * 255;
@@ -84,18 +93,28 @@ void Fractals::FractalCreator::drawFractal()
 	}
 }
 
-void Fractals::FractalCreator::addZoom(const Zoom& zoom)
+void FractalCreator::addZoom(const Zoom& zoom)
 {
+	// add zoom to the list
 	m_zoomList.add(zoom);
 }
 
-void Fractals::FractalCreator::writeBitmap(std::string filename)
+void FractalCreator::writeBitmap(const std::string& filename)
 {
-	m_bitmap.write(filename);
+	// write the bitmap file
+	if (m_bitmap.write(filename))
+	{
+		std::cout << "Fractal created successfully: " << filename << std::endl;
+	}
+	else
+	{
+		std::cerr << "Failed to create fractal: " << filename << std::endl;
+	}
 }
 
-void Fractals::FractalCreator::run()
+void FractalCreator::run()
 {
+	// add zooms
 	addZoom(Zoom(295, m_height - 202, 0.1));
 	addZoom(Zoom(312, m_height - 304, 0.1));
 
@@ -103,5 +122,8 @@ void Fractals::FractalCreator::run()
 	calculateTotalIterations();
 	drawFractal();
 
-	writeBitmap("test.bmp");
+	// create ./images directory if it doesn't exist
+	std::filesystem::create_directory("./images");
+
+	writeBitmap("./images/fractal.bmp");
 }

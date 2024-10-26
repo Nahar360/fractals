@@ -1,10 +1,10 @@
 #include "Bitmap.hpp"
+
 #include "BitmapInfoHeader.hpp"
 #include "BitmapFileHeader.hpp"
 
 #include <fstream>
-
-using namespace Fractals;
+#include <iostream>
 
 namespace Fractals
 {
@@ -31,33 +31,57 @@ namespace Fractals
 		pPixel[2] = red;
 	}
 
-	bool Bitmap::write(std::string filename)
+	bool Bitmap::write(const std::string& filename)
 	{
+		// create the bitmap file header
 		BitmapFileHeader fileHeader;
-		BitmapInfoHeader infoHeader;
-
 		fileHeader.fileSize = sizeof(BitmapFileHeader) + sizeof(BitmapInfoHeader) + m_width * m_height * 3;
 		fileHeader.dataOffset = sizeof(BitmapFileHeader) + sizeof(BitmapInfoHeader);
 
+		// create the bitmap info header
+		BitmapInfoHeader infoHeader;
 		infoHeader.width = m_width;
 		infoHeader.height = m_height;
 
 		std::ofstream file;
-		file.open(filename, std::ios::out | std::ios::binary);
 
+		// open the file in binary mode
+		file.open(filename, std::ios::out | std::ios::binary);
 		if (!file)
 		{
+			std::cerr << "Could not open file: " << filename << std::endl;
 			return false;
 		}
 
+		// write the headers to the file
 		file.write((char*)&fileHeader, sizeof(fileHeader));
-		file.write((char*)&infoHeader, sizeof(infoHeader));
-		file.write((char*)m_pPixels.get(), m_width * m_height * 3);
-
-		file.close();
-
 		if (!file)
 		{
+			std::cerr << "Could not write file header to file: " << filename << std::endl;
+			return false;
+		}
+
+		// write the info header to the file
+		file.write((char*)&infoHeader, sizeof(infoHeader));
+		if (!file)
+		{
+			std::cerr << "Could not write info header to file: " << filename << std::endl;
+			return false;
+		}
+
+		// write the pixel data to the file
+		file.write((char*)m_pPixels.get(), m_width * m_height * 3);
+		if (!file)
+		{
+			std::cerr << "Could not write pixel data to file: " << filename << std::endl;
+			return false;
+		}
+
+		// close the file
+		file.close();
+		if (!file)
+		{
+			std::cerr << "Could not close file: " << filename << std::endl;
 			return false;
 		}
 

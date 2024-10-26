@@ -4,10 +4,10 @@
 
 using namespace Fractals;
 
-int Fractals::Mandelbrot::getIterations(double x, double y)
+int Mandelbrot::getIterations(double x, double y)
 {
 	std::complex<double> z = 0;
-	std::complex<double> c(x, y);
+	const std::complex<double> c(x, y);
 
 	int iterations = 0;
 

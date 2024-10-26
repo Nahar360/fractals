@@ -1,5 +1,9 @@
-# fractals
-Fractals
+# Introduction
+'Fractals' project developed following an online course. It generates fractal images in `BMP` file format.
+
+[fractals-screenshot]: images/fractal.bmp
+
+[![Fractals screenshot][fractals-screenshot]]()
 
 # Building and running
 
