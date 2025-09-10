@@ -1,5 +1,5 @@
 # Introduction
-'Fractals' project developed following an online course. It generates fractal images in `BMP` file format.
+'Fractals' project developed following an online course I did in the past. It generates fractal images in `BMP` file format.
 
 [fractals-screenshot]: images/fractal.bmp
 
